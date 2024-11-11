@@ -6,18 +6,34 @@
  */
 
 function wait1(t) {
-
+  return new Promise(resolve => {
+    setTimeout(resolve, 1000 * t);
+  })
 }
 
 function wait2(t) {
-
+  return new Promise(resolve => {
+    setTimeout(resolve, 1000 * t);
+  })
 }
 
 function wait3(t) {
-
+  return new Promise(resolve => {
+    setTimeout(resolve, 1000 * t);
+  })
 }
 
 function calculateTime(t1, t2, t3) {
+
+  let start = performance.now();
+
+  return wait1(t1).then(() => {
+    return wait2(t2).then(() => {
+      return wait3(t3).then(() => {
+        return performance.now() - start;
+      })
+    })
+  }) 
 
 }
 

@@ -69,7 +69,7 @@
   
 
   app.get('/todos', (req, res) => {
-    return res.status(200).json(todos)
+    res.status(200).json(todos)
   })
 
   app.get('/todos/:id', (req, res) => {
@@ -77,9 +77,9 @@
 
     const currTodo = todos.filter(todo => todo.id == id);
 
-    if(currTodo.length == 0) return res.status(404).send();
+    if(currTodo.length == 0) res.status(404).send();
 
-    return res.status(200).json(currTodo[0]);
+    res.status(200).json(currTodo[0]);
 
   })
 
@@ -97,7 +97,7 @@
         console.log(`Error while writing to file : ${err}`);
     })
 
-    return res.status(201).json({
+    res.status(201).json({
       id : currTodo.id
     })
   })
@@ -122,7 +122,7 @@
       }
     }
 
-    return res.status(404).send();
+    res.status(404).send();
 
   })
 
@@ -147,11 +147,11 @@
         console.log(`Error while writing to file : ${err}`);
     })
 
-    return found ? res.status(200).send() : res.status(404).send();
+    found ? res.status(200).send() : res.status(404).send();
   })
 
   app.all('*', (req, res) => {
-    return res.status(404).send();
+    res.status(404).send();
   })
 
   
