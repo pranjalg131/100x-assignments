@@ -39,11 +39,120 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
+  const express = require('express');  
+  const fs = require('fs');
   const app = express();
   
-  app.use(bodyParser.json());
+  app.use(express.json());
+
+  let todos = [];
+  let nextTodoId = 1;
+  const dbFile = 'todos.json';
+
+  // Can't use as tests are not designed to handle this.
+
+  // fs.readFile(dbFile, 'utf-8' , (err, data) => {
+
+  //   if(err){
+  //     return;
+  //   }
+
+  //   console.log('Loaded todos from db');
+  //   todos = JSON.parse(data);
+    
+  //   if(todos.length > 0){
+  //     nextTodoId = todos[-1].id;
+  //   }
+
+  // })
+
+  
+
+  app.get('/todos', (req, res) => {
+    return res.status(200).json(todos)
+  })
+
+  app.get('/todos/:id', (req, res) => {
+    const id = req.params.id;
+
+    const currTodo = todos.filter(todo => todo.id == id);
+
+    if(currTodo.length == 0) return res.status(404).send();
+
+    return res.status(200).json(currTodo[0]);
+
+  })
+
+
+  app.post('/todos', (req, res) => {
+    const currTodo = req.body;
+
+    currTodo.id = nextTodoId;
+    nextTodoId++;
+
+    todos.push(currTodo);
+
+    fs.writeFile(dbFile, JSON.stringify(todos), err => {
+      if(err)
+        console.log(`Error while writing to file : ${err}`);
+    })
+
+    return res.status(201).json({
+      id : currTodo.id
+    })
+  })
+
+
+  app.put('/todos/:id', (req, res) => {
+
+    const id = req.params.id;
+
+    for(let i = 0; i < todos.length; i++){
+      if(id == todos[i].id){
+
+        todos[i] = {...req.body , id}
+
+        fs.writeFile(dbFile, JSON.stringify(todos), err => {
+          if(err)
+            console.log(`Error while writing to file : ${err}`);
+        })
+
+        res.status(200).send();
+
+      }
+    }
+
+    return res.status(404).send();
+
+  })
+
+  app.delete('/todos/:id', (req, res) => {
+
+    const id = req.params.id;
+
+    const newTodos = [];
+    let found = false;
+
+    for(let i = 0; i < todos.length; i++){
+      if(id == todos[i].id){
+        found = true;
+      }
+      newTodos.push(todos[i]);
+    }
+
+    todos = newTodos;
+
+    fs.writeFile(dbFile, JSON.stringify(todos) , err => {
+      if(err)
+        console.log(`Error while writing to file : ${err}`);
+    })
+
+    return found ? res.status(200).send() : res.status(404).send();
+  })
+
+  app.all('*', (req, res) => {
+    return res.status(404).send();
+  })
+
   
   module.exports = app;
